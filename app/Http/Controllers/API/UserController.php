@@ -8,8 +8,56 @@ use App\Models\User;
 Use Validator;
 use Illuminate\Support\Facades\Hash;
 
+
+
+
+
 class UserController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     tags={"register"},
+     *     summary="User Registeration",
+     *     description="Multiple status values can be provided with comma separated string",
+     *     operationId="register",
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="email",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="password",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="password_confirmation",
+     *                      type="string"
+     *                  ),
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid status value"
+     *     ),
+     * )
+     */
+
+
     public function register(Request $request){
         $validator=Validator::make($request->all(),[
             'name'=>'required',
@@ -29,6 +77,42 @@ class UserController extends Controller
         return view('/login2')->with('success', "User registered successfully!");
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     tags={"login"},
+     *     summary="User Login",
+     *     description="Multiple status values can be provided with comma separated string",
+     *     operationId="login",
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  
+     *                  @OA\Property(
+     *                      property="email",
+     *                      type="string"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="password",
+     *                      type="string"
+     *                  ),
+     *     
+     *              )
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid status value"
+     *     ),
+     * )
+     */
     public function login(Request $request){
         $validator=Validator::make($request->all(),[
             'email'=>'required|email',
@@ -52,6 +136,34 @@ class UserController extends Controller
         ], 200);
     } 
 
+    /**
+     * Get User Logout
+     * @OA\Post (
+     *     path="/api/logout",
+     *     tags={"logout"},
+     *     security={{"bearer_token":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="success",
+     *         @OA\JsonContent(
+     *              @OA\Property(property="status", type="number", example=200),
+     *              @OA\Property(property="message", type="string", example="User logged out successfully"),
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Invalid or no access token passed ",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="message", 
+     *                  type="string",
+     *                  example="Unauthorized"
+     *              ),
+     *          )
+     *      )
+     * )
+     */
+
     public function logout(){
         $user=auth()->user();
         $user->update(['password'=>'123456']);
@@ -60,6 +172,40 @@ class UserController extends Controller
         return response()->json(['status'=>200, 'msg'=>'User logged out successfully']);
     }
 
+
+    /**
+     * Get User details
+     * @OA\Get (
+     *     path="/api/profile",
+     *     tags={"profile"},
+     *     security={{"bearer_token":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="success",
+     *         @OA\JsonContent(
+     *              @OA\Property(property="id", type="number", example=1),
+     *              @OA\Property(property="title", type="string", example="title"),
+     *              @OA\Property(property="content", type="string", example="content"),
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Credentials are incorrect",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="status", 
+     *                  type="number", 
+     *                  example=401
+     *              ),
+     *              @OA\Property(
+     *                  property="message", 
+     *                  type="string",
+     *                  example="Unauthorized"
+     *              ),
+     *          )
+     *      )
+     * )
+     */
     public function profile(Request $request){
         
         $user=auth()->user();
